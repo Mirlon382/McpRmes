@@ -62,4 +62,7 @@ docstring-code-format = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Pin the fixture loop scope: leaving it unset makes pytest-asyncio warn on every run and changes the
+# default in a future release, which would silently move the loop the async tests share.
+asyncio_default_fixture_loop_scope = "function"
 

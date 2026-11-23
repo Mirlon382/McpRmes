@@ -7,7 +7,6 @@ from typing import Any
 
 from fastmcp import Context
 from fastmcp.dependencies import CurrentContext
-
 from httpx import AsyncClient
 
 from ..services.rmes.graph_store_service import RmesGraphStoreService
@@ -15,7 +14,7 @@ from ..services.rmes.graph_store_service import RmesGraphStoreService
 logger = logging.getLogger(__name__)
 
 # Honest identity -- these APIs need no browser spoofing. Hardcoded: bump with pyproject.toml maybe.
-USER_AGENT = "McpDiffusion/0.1.0"
+USER_AGENT = "McpRmes/0.1.0"
 
 
 @asynccontextmanager
@@ -49,6 +48,7 @@ async def rmes_lifespan(
         }
     finally:
         await http_client.aclose()
+
 
 def get_rmes_graph_store_service(ctx: Context = CurrentContext()) -> RmesGraphStoreService:
     """Return the RMES graph store service built at startup."""

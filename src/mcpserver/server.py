@@ -1,7 +1,6 @@
 """Entrypoint: builds the settings, the clients and the MCP application, then serves it over HTTP."""
 
 import logging
-from textwrap import dedent
 
 import uvicorn
 from fastmcp import FastMCP
@@ -72,6 +71,7 @@ app = mcp.http_app(
     allowed_hosts=settings.allowed_hosts,
     allowed_origins=settings.allowed_origins,
 )
+
 
 def main() -> None:
     uvicorn.run(

@@ -1,9 +1,9 @@
 """Every value this server can be configured with."""
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from textwrap import dedent
-from pydantic import Field, model_validator
 
+from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # (default, maximum) pairs of ToolLimits, checked together at startup.
 DEFAULT_AND_MAXIMUM_FIELDS = (
@@ -27,6 +27,7 @@ class ToolLimits(BaseSettings):
     # Appended as a LIMIT when the query has none.
     rmes_query_default_max_rows: int = Field(default=200, ge=1)
     rmes_query_max_rows: int = Field(default=2000, ge=1)
+
     @model_validator(mode="after")
     def keep_defaults_within_maximums(self) -> "ToolLimits":
         """FastMCP never validates a parameter's default, so a default above its maximum would be used as is."""
@@ -46,9 +47,8 @@ class ToolLimits(BaseSettings):
 
 
 class Settings(BaseSettings):
-
-    server_name:str = "INSEE-mcp-server"
-    instructions:str = dedent("""
+    server_name: str = "INSEE-mcp-server"
+    instructions: str = dedent("""
         - RMES -- statistical metadata: definitions and nomenclatures. It holds no figures.
 
     """).strip()
@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     # Accepts addresses, CIDR networks and literals. Widening this lets callers forge their own address.
     trusted_proxy_hosts: list[str] = ["127.0.0.1"]
 
-    # RMES services -----------------------------------------------------------------------------------------------------
+    # RMES services ----------------------------------------------------------------------------------------
     rmes_sparql_endpoint_url: str = "https://rdf.insee.fr/sparql"
     # Not an address to call: the namespace every named graph URI starts with, stripped off
     # before a graph is matched against a family.

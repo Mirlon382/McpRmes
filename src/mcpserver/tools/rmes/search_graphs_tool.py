@@ -13,6 +13,7 @@ from ...models.rmes import (
 from ...services.rmes.graph_store_service import RmesGraphStoreService
 from ...services.rmes.graph_taxonomy import build_category_summary, filter_graph_rows
 
+
 async def search_rmes_graphs(
     graph_uri_substring: GraphUriSubstring = None,
     graph_category: GraphCategory = GraphCategoryChoice.ALL,

@@ -6,6 +6,7 @@ from ...lifespan.rmes import get_rmes_graph_store_service
 from ...models.rmes import GraphUri, ResourceOutput, ResourceUri
 from ...services.rmes.graph_store_service import RmesGraphStoreService
 
+
 async def describe_rmes_resource(
     resource_uri: ResourceUri,
     graph_uri: GraphUri = None,

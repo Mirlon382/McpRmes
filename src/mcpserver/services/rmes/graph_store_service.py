@@ -22,7 +22,10 @@ GRAPH_LISTING_QUERY = (
     "SELECT ?g (COUNT(*) AS ?nbTriples) WHERE { GRAPH ?g { ?s ?p ?o } } GROUP BY ?g ORDER BY DESC(?nbTriples)"
 )
 
-STRIP_PREFIX_PATTERN = re.compile(r"(?i)^\s*(PREFIX|BASE)\b.*$", re.MULTILINE)
+# A PREFIX or BASE declaration, stripped whether or not it sits on its own line. Only the declaration
+# is removed: anchoring on the end of the line deleted the rest of it too, so `PREFIX ex: <...> SELECT`
+# written as one line lost its SELECT and was reported as an undetectable query form.
+STRIP_PREFIX_PATTERN = re.compile(r"(?i)^[ \t]*(?:PREFIX|BASE)\s+(?:[^\s:<>]*:\s*)?<[^<>]*>", re.MULTILINE)
 QUERY_FORM_PATTERN = re.compile(r"(?i)\b(SELECT|ASK|CONSTRUCT|DESCRIBE)\b")
 # A LIMIT that bounds the whole query is the last thing in it -- OFFSET may follow or precede it,
 # but nothing else does. Matching LIMIT anywhere counted one belonging to a subquery, or the word

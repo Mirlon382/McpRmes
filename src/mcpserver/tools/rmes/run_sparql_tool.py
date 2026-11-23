@@ -13,6 +13,7 @@ from ...models.rmes import (
 )
 from ...services.rmes.graph_store_service import RmesGraphStoreService
 
+
 async def run_rmes_sparql(
     sparql_query: SparqlQuery,
     timeout_seconds: TimeoutSeconds = DEFAULT_QUERY_TIMEOUT_SECONDS,
@@ -20,8 +21,8 @@ async def run_rmes_sparql(
     rmes_graph_store_service: RmesGraphStoreService = Depends(get_rmes_graph_store_service),
 ) -> SparqlOutput:
     """Execute une requete SPARQL libre sur RMES, la base de metadonnees, nomenclatures et
-    definitions de l'INSEE (elle ne contient PAS les chiffres/donnees, voir les tools MELODI
-    pour ca).
+    definitions de l'INSEE. Elle ne contient PAS les chiffres/donnees : ce serveur n'expose que
+    RMES, aucun tool ne renvoie de series statistiques.
 
     WHEN TO USE
     - Vocabulary, code definitions and classifications, once you know which graphs to target.
@@ -31,7 +32,7 @@ async def run_rmes_sparql(
 
     Lecture seule : les operations de mise a jour (INSERT, DELETE, LOAD, CLEAR, DROP, ...) et les
     requetes federees (SERVICE) sont refusees avant envoi.
-    
+
     Bonnes pratiques :
     - Toujours filtrer sur un ou plusieurs graphes precis avec GRAPH <uri> { ... } ou
       VALUES ?g { <uri1> <uri2> } plutot que de scanner tous les graphes.

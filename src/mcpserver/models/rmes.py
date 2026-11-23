@@ -3,11 +3,10 @@
 from enum import StrEnum
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, BeforeValidator, StringConstraints
-
-from ..settings import load_tool_limits
+from pydantic import BaseModel, BeforeValidator, Field, StringConstraints
 
 from ..data.rmes.graph_categories import CATEGORY_DEFINITIONS, FALLBACK_CATEGORY_DEFINITION
+from ..settings import load_tool_limits
 from .common import MAX_SHORT_TEXT_CHARS, ShortText
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -124,9 +123,9 @@ GraphUri = Annotated[
 SparqlQuery = Annotated[
     str,
     StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_SPARQL_QUERY_CHARS),
-    Field(description=(
-            "Requete SPARQL complete (SELECT / ASK / CONSTRUCT / DESCRIBE)."
-            f"{MAX_SPARQL_QUERY_CHARS} caractères maxi."
+    Field(
+        description=(
+            f"Requete SPARQL complete (SELECT / ASK / CONSTRUCT / DESCRIBE).{MAX_SPARQL_QUERY_CHARS} caractères maxi."
         ),
     ),
 ]
