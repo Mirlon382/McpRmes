@@ -1,41 +1,26 @@
-# MCPSquelette 🦴
+# MCP Rmes 🦴
 
-"Just the tools"
+Python MCP server based on the FastMCP v4 lib to connect LLM to the SPARQL enabled endpoint of RMeS, the INSEE ontology.
 
-Python MCP server template based on the FastMCP v4 lib. It handles starting the server with pre configured :
-- logging
-- server config
-- rate limiting
-- Docker image
+## Run locally
 
-Bundled with a Skill (to do)
-
-## Build
-
-Simply retrieve the skeleton repository 🦴
+Simply retrieve the repository. UV handles the rest.
 
 ```{bash}
 git clone <url>
-```
-
-Start building tools in the `tools/` directory. For a better Agent Experience, don't forget to add input and output schema in the `models/` directory.
-
-When deemed finished, launch with
-
-```{bash}
 uv sync
 uv run mcpserver
 ```
 
-'It's Alive 🧟'
+To inspect and test the server without using an LLM
 
 ```{bash}
 npx @modelcontextprotocol/inspector
 ```
 
-To inspect it. By default on http://localhost:8000/mcp
-
 ## Make it portable
+
+To deploy the server 
 
 ```{bash}
 docker build . -t myserver
