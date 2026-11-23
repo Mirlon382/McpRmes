@@ -1,6 +1,12 @@
-# MCP Rmes 🦴
+# MCP Rmes
 
 Python MCP server based on the FastMCP v4 lib to connect LLM to the SPARQL enabled endpoint of RMeS, the INSEE ontology.
+
+<!-- ─── BETA BADGE ───────────────────────────────────────────────────────── -->
+![Status: BETA](https://img.shields.io/badge/status-BETA-yellow?style=for-the-badge)
+
+> **⚠️  BETA – NOT PRODUCTION READY**  
+> This project is **still in beta**. It should **not** be considered a finished or officially‑supported product from INSEE.
 
 ## Run locally
 
