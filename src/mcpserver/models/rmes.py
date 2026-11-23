@@ -203,4 +203,6 @@ class SparqlOutput(BaseModel):
     hint: str | None = None
     variables: list[str] | None = None
     bindings: list[dict[str, Any]] | None = None
+    # ASK only: the endpoint answers true/false instead of rows.
+    boolean: bool | None = None
     turtle: str | None = None

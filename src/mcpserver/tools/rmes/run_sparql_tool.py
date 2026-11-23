@@ -67,6 +67,7 @@ async def run_rmes_sparql(
 
     Les requetes CONSTRUCT/DESCRIBE renvoient du Turtle (`format="turtle"`, champ `turtle`)
     plutot que des lignes (`format="json"`, champs `variables`/`bindings`).
+    Les requetes ASK renvoient leur reponse dans le champ `boolean` (true/false), sans lignes.
     """
     response = await rmes_graph_store_service.execute(
         query=sparql_query,
@@ -85,4 +86,5 @@ async def run_rmes_sparql(
         hint=response.hint,
         variables=response.variables,
         bindings=response.bindings,
+        boolean=response.boolean,
     )

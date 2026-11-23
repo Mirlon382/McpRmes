@@ -98,6 +98,16 @@ async def test_answer_without_limit_reports_the_one_that_was_added() -> None:
     assert "LIMIT 42" in sent[0]
 
 
+async def test_ask_answer_is_the_boolean_flag() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"head": {}, "boolean": True})
+
+    answer = await build_service(handler).execute("ASK { GRAPH ?g { ?s ?p ?o } }", 10.0, 10)
+
+    assert answer.boolean is True
+    assert answer.bindings is None
+
+
 async def test_construct_answer_comes_back_as_turtle() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["accept"] == "text/turtle"

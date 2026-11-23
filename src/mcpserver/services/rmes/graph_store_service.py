@@ -73,6 +73,8 @@ class SparqlResponse:
     turtle: str | None = None
     variables: list[str] | None = None
     bindings: list[dict[str, Any]] | None = None
+    # ASK answers no rows at all: the endpoint replies with `"boolean": true|false`.
+    boolean: bool | None = None
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -279,6 +281,8 @@ class RmesGraphStoreService:
             hint=build_limit_hint(max_rows) if limit_added else None,
             variables=payload.get("head", {}).get("vars"),
             bindings=payload.get("results", {}).get("bindings"),
+            # Present only for ASK, where the whole answer is this flag.
+            boolean=payload.get("boolean"),
         )
 
     async def fetch_graph_rows(self) -> list[GraphRow]:
