@@ -4,6 +4,8 @@ A [Model Context Protocol](https://modelcontextprotocol.io) server that puts INS
 
 <!-- ─── BETA BADGE ───────────────────────────────────────────────────────── -->
 ![Status: BETA](https://img.shields.io/badge/status-BETA-yellow?style=for-the-badge)
+[![CI](https://github.com/Mirlon382/McpRmes/actions/workflows/ci.yml/badge.svg)](https://github.com/Mirlon382/McpRmes/actions/workflows/ci.yml)
+[![License: Etalab 2.0](https://img.shields.io/badge/licence-Etalab%202.0-blue)](LICENSE)
 
 > **⚠️ BETA — NOT PRODUCTION READY**
 > This project is still in beta. It should not be considered a finished or officially supported product from INSEE.
@@ -172,7 +174,7 @@ podman inspect --format '{{.State.Health.Status}}' <container>   # → healthy
 
 The image runs as uid 1000, installs no dev dependencies, and its healthcheck opens a TCP connection rather than sending an HTTP request — the MCP endpoint answers `400` without a session handshake, so an HTTP probe would report a healthy server as broken.
 
-`k8s/manifest.yaml` has a Service, a Deployment and an Ingress. Two values must be set before deploying: the placeholder `image: x/mcp-server:latest`, and `ALLOWED_HOSTS`, which the manifest already narrows to one hostname while the code default is `["*"]`.
+`k8s/manifest.yaml` has a Service, a Deployment and an Ingress, and it is a template rather than a deployment: the hostname (`mcprmes.example.com`) and the image (`ghcr.io/<owner>/mcprmes:latest`) are placeholders, and the hostname has to match `ALLOWED_HOSTS` in the Deployment. `ALLOWED_HOSTS` is the one setting that cannot be left at its code default: the manifest narrows it to a single hostname while the code ships `["*"]`. `TRUSTED_PROXY_HOSTS` is the second: it decides whose `X-Forwarded-For` is believed, so pointing it at the Ingress controller's pod network keeps the rate limiter identifying callers individually without trusting anything that can reach the pod directly.
 
 ### Configuration
 
@@ -203,12 +205,20 @@ uv run ruff format .      # format
 
 The suite never calls INSEE: `test_graph_store_service.py` runs the service against an `httpx.MockTransport`, so timeouts, `400`, `503` and malformed answers are exercised without the network. `test_query_shaping.py` pins what is refused, what limit is forced, and which `PREFIX`/`BASE` forms still parse; `test_graph_taxonomy.py` pins the family rules; `test_tools.py` reads back the schema a client actually receives.
 
+`.github/workflows/ci.yml` runs those three commands on every push and pull request, against a `uv.lock` it refuses to re-resolve (`uv sync --locked`), plus a container build that proves the Dockerfile still works. Nothing in CI reaches the network on purpose.
+
 ### What it deliberately does not do
 
 - **No figures.** RMES has no data series; a model after numbers needs another source.
 - **No authentication.** Anyone who can reach the port can query. `ALLOWED_HOSTS=["*"]` and an empty `ALLOWED_ORIGINS` are development defaults: set both before exposing this beyond localhost.
 - **No persistence.** The graph listing cache and the rate limiter live in the process; restarting forgets them, and several replicas each keep their own.
 - **No writes.** The endpoint is public and read-only, and the server refuses update operations itself rather than trusting that.
+
+### Licence
+
+Released under the [Licence Ouverte / Open Licence 2.0](LICENSE) (Etalab), the French licence for public information. It grants reuse — commercial included — on condition of attribution and of not suggesting official endorsement. The full text in [`LICENSE`](LICENSE) is authoritative.
+
+This repository is not an INSEE product: it is an independent client of INSEE's public RDF store, and the licence above covers the code here, not the RMeS data, which stays under INSEE's own terms.
 
 ---
 
@@ -381,7 +391,7 @@ podman inspect --format '{{.State.Health.Status}}' <container>   # → healthy
 
 L'image tourne avec l'uid 1000, n'installe aucune dépendance de développement, et son healthcheck ouvre une connexion TCP plutôt que d'envoyer une requête HTTP — l'endpoint MCP répond `400` sans poignée de main de session, donc une sonde HTTP déclarerait cassé un serveur sain.
 
-`k8s/manifest.yaml` fournit un Service, un Deployment et un Ingress. Deux valeurs sont à renseigner avant de déployer : l'image factice `image: x/mcp-server:latest`, et `ALLOWED_HOSTS`, que le manifeste restreint déjà à un nom d'hôte alors que le défaut du code est `["*"]`.
+`k8s/manifest.yaml` fournit un Service, un Deployment et un Ingress, sous forme de gabarit et non de déploiement : le nom d'hôte (`mcprmes.example.com`) et l'image (`ghcr.io/<owner>/mcprmes:latest`) sont des valeurs à remplacer, et le nom d'hôte doit correspondre à `ALLOWED_HOSTS` dans le Deployment. `ALLOWED_HOSTS` est le réglage qu'on ne peut pas laisser à sa valeur par défaut : le manifeste le restreint à un seul nom d'hôte là où le code livre `["*"]`. `TRUSTED_PROXY_HOSTS` est le second : il décide de quel `X-Forwarded-For` on croit l'en-tête, donc le pointer sur le réseau de pods du contrôleur d'Ingress permet au rate limiter d'identifier chaque appelant sans faire confiance à ce qui atteint le pod directement.
 
 ### Configuration
 
@@ -412,9 +422,17 @@ uv run ruff format .      # format
 
 La suite n'appelle jamais l'INSEE : `test_graph_store_service.py` exécute le service contre un `httpx.MockTransport`, donc timeouts, `400`, `503` et réponses malformées sont couverts sans réseau. `test_query_shaping.py` fige ce qui est refusé, la limite ajoutée et les formes `PREFIX`/`BASE` qui restent analysables ; `test_graph_taxonomy.py` fige les règles de familles ; `test_tools.py` relit le schéma que reçoit réellement un client.
 
+`.github/workflows/ci.yml` lance ces trois commandes à chaque push et pull request, contre un `uv.lock` qu'il refuse de résoudre à nouveau (`uv sync --locked`), plus un build de conteneur qui vérifie que le Dockerfile fonctionne encore. Rien dans la CI n'atteint le réseau volontairement.
+
 ### Ce qu'il ne fait volontairement pas
 
 - **Aucun chiffre.** RMeS n'a pas de séries ; un modèle qui cherche des nombres doit s'adresser ailleurs.
 - **Aucune authentification.** Quiconque atteint le port peut interroger. `ALLOWED_HOSTS=["*"]` et `ALLOWED_ORIGINS=[]` sont des défauts de développement : à changer tous les deux avant d'exposer le serveur au-delà de localhost.
 - **Aucune persistance.** Le cache du listing et le rate limiter vivent dans le processus ; un redémarrage les oublie, et plusieurs replicas gardent chacun le leur.
 - **Aucune écriture.** L'endpoint est public et en lecture seule, et le serveur refuse lui-même les opérations de mise à jour plutôt que de compter dessus.
+
+### Licence
+
+Publié sous [Licence Ouverte / Open Licence 2.0](LICENSE) (Etalab), la licence française pour l'information publique. Elle autorise la réutilisation — y compris commerciale — à condition de mentionner la source et de ne pas suggérer une caution officielle. Le texte intégral dans [`LICENSE`](LICENSE) fait foi.
+
+Ce dépôt n'est pas un produit de l'INSEE : c'est un client indépendant de son entrepôt RDF public, et la licence ci-dessus couvre le code présent ici, pas les données RMeS, qui restent soumises aux conditions de l'INSEE.

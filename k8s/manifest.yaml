@@ -1,60 +1,65 @@
+# Template, not a deployment: replace every value marked <...> before applying.
+# The hostname and the image below are placeholders. Nothing here is needed to run the server
+# locally - `uv run mcpserver` uses none of it.
 
 # -------------------------------------------------
-# 1️⃣ Service – makes the pod reachable inside the cluster
+# 1. Service - makes the pod reachable inside the cluster
 # -------------------------------------------------
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-server-service
-  # optional: namespace: my‑namespace
+  name: mcprmes
+  # optional: namespace: <namespace>
 spec:
   selector:
-    app: mcp_server            # <-- must match the Deployment label
+    app: mcprmes              # must match the Deployment label
   ports:
     - protocol: TCP
-      port: 80                    # the port exposed inside the cluster
-      targetPort: 8000            # the port the container actually listens on
-  type: ClusterIP                # default – reachable only from inside the cluster
+      port: 80                # the port exposed inside the cluster
+      targetPort: 8000        # the port the container actually listens on
+  type: ClusterIP             # default - reachable only from inside the cluster
 
 ---
 # -------------------------------------------------
-# 2️⃣ Deployment – runs the container
+# 2. Deployment - runs the container
 # -------------------------------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment-server
-  # Uncomment the line below to deploy to a specific namespace
-  # namespace: my-namespace
+  name: mcprmes
+  # optional: namespace: <namespace>
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mcp_server
+      app: mcprmes
   template:
     metadata:
       labels:
-        app: mcp_server
+        app: mcprmes
     spec:
       containers:
-        - name: mcp-sirene-container
-          image: x/mcp-server:latest
+        - name: mcprmes
+          image: ghcr.io/<owner>/mcprmes:latest   # <-- placeholder: your registry and tag
           imagePullPolicy: Always
           ports:
-            - containerPort: 8000          # matches Service.targetPort
+            - containerPort: 8000                 # matches Service.targetPort
           env:
+          # Checked against the Host header: the single hostname the Ingress routes to this
+          # Service. The code default is ["*"], which disables the check, so this must be set.
           - name: ALLOWED_HOSTS
-            value: '["mcpserver.lab.sspcloud.fr"]'
+            value: '["mcprmes.example.com"]'
           # No browser client calls this server today, so no cross-origin site is allowed.
           - name: ALLOWED_ORIGINS
             value: '[]'
-          # The Ingress controller reaches the pod from a cluster IP that changes, so the
-          # forwarded caller address is believed from any peer. Uvicorn otherwise trusts only
-          # 127.0.0.1, sees every request as coming from the Ingress, and rate limits all
-          # callers as one. Keep the pod reachable only through the Ingress.
+          # Peers whose X-Forwarded-For header is believed; this is how the rate limiter
+          # identifies a caller. The real client address only survives if the Ingress forwards
+          # it, so the Ingress controller's pod network has to be trusted - narrow it to that
+          # range. ["*"] also works but trusts every peer, letting anything that reaches the pod
+          # directly pick its own rate-limit identity. Keep the pod reachable only through the
+          # Ingress.
           - name: TRUSTED_PROXY_HOSTS
-            value: '["*"]'
-          # Optional resources block – adjust as needed
+            value: '["10.0.0.0/8"]'
           resources:
             limits:
               cpu: 1
@@ -65,24 +70,26 @@ spec:
 
 ---
 # -------------------------------------------------
-# 3️⃣ Ingress – exposes the Service outside the cluster
+# 3. Ingress - exposes the Service outside the cluster
 # -------------------------------------------------
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mcp-ingress
-  # optional: namespace: my‑namespace
+  name: mcprmes
+  # optional: namespace: <namespace>
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: mcpserver.lab.sspcloud.fr
+    - host: mcprmes.example.com          # <-- placeholder: must equal ALLOWED_HOSTS above
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: api-server-service   # matches Service.metadata.name
+                name: mcprmes            # matches Service.metadata.name
                 port:
-                  number: 80               # matches Service.port # kubectl rollout restart deployment/backend-deployment
+                  number: 80             # matches Service.port
+
+# After changing an env value: kubectl rollout restart deployment/mcprmes
