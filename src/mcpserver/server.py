@@ -1,6 +1,7 @@
 """Entrypoint: builds the settings, the clients and the MCP application, then serves it over HTTP."""
 
 import logging
+from importlib.metadata import PackageNotFoundError, version
 
 import uvicorn
 from fastmcp import FastMCP
@@ -23,8 +24,17 @@ logger = logging.getLogger(__name__)
 # is in the tool descriptions, where it reaches the model even when a client drops these instructions.
 
 
+def installed_version() -> str:
+    """The version the handshake reports. Without it FastMCP announces its own library version instead."""
+    try:
+        return version("mcprmes")
+    except PackageNotFoundError:  # a source tree that was never installed: nothing to read it from
+        return "0.1.0"
+
+
 mcp = FastMCP(
     settings.server_name,
+    version=installed_version(),
     instructions=settings.instructions,
     # Only AppToolError messages reach the caller; anything else is a bug and is replaced
     # by a generic message.

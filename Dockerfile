@@ -32,8 +32,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # ---- Runtime stage --------------------------------------------------------------------------------
 FROM python:3.12-slim
 
-# CI passes the real version; `dev` is honest for a local build.
+# CI passes the real version; `dev` is honest for a local build. Both the label and the MCP
+# handshake read it, so a client can tell which build it is talking to.
 ARG APP_VERSION=dev
+
+LABEL org.opencontainers.image.title="mcprmes" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.source="https://github.com/Mirlon382/McpRmes" \
+      org.opencontainers.image.licenses="etalab-2.0"
 
 
 # PATH: `python` means the venv's python everywhere -- CMD, HEALTHCHECK, and docker exec.
