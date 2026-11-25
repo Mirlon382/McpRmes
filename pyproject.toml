@@ -1,7 +1,18 @@
 [project]
-name = "mcpserver"
+name = "mcprmes"
 version = "0.1.0"
-description = "MCP server (edit this)"
+description = "MCP server exposing INSEE's RMeS ontology — statistical metadata over SPARQL — to LLM clients"
+readme = "README.md"
+license = "etalab-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Mirlon382" }]
+keywords = ["mcp", "model-context-protocol", "sparql", "rdf", "insee", "rmes", "statistics", "metadata"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
 requires-python = ">=3.12"
 dependencies = [
     "fastmcp>=4.0.0",
@@ -11,6 +22,11 @@ dependencies = [
     "python-dotenv==1.2.3",
     "pydantic-settings>=2.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Mirlon382/McpRmes"
+Repository = "https://github.com/Mirlon382/McpRmes"
+Issues = "https://github.com/Mirlon382/McpRmes/issues"
 
 [project.scripts]
 mcpserver="mcpserver.server:main"
