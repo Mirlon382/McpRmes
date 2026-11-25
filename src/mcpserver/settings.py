@@ -47,7 +47,7 @@ class ToolLimits(BaseSettings):
 
 
 class Settings(BaseSettings):
-    server_name: str = "INSEE-mcp-server"
+    server_name: str = "mcprmes"
     instructions: str = dedent("""
         - RMES -- statistical metadata: definitions and nomenclatures. It holds no figures.
 
